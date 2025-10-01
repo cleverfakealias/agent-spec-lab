@@ -3,21 +3,19 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
 
 from langchain_core.documents import Document
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.runnables import RunnableLambda
 from langgraph.graph import END, StateGraph
+from langgraph.graph.state import CompiledStateGraph
 
 from agent_spec_lab.nodes.answer import create_answer_node
 from agent_spec_lab.nodes.retriever import create_retrieve_node
 from agent_spec_lab.state import AgentState
 
 
-def build_faq_graph(documents: Sequence[Document], llm: BaseChatModel) -> Any:
-    """Compile and return the FAQ LangGraph."""
-
+def build_faq_graph(documents: Sequence[Document], llm: BaseChatModel) -> CompiledStateGraph:
     graph = StateGraph(AgentState)
 
     # Convert functions to RunnableLambda explicitly for better type compatibility

@@ -37,6 +37,7 @@ def ask(
     with start_tracing(run_name="faq-query"):
         result = graph.invoke(state)
 
+    # Following LangGraph best practices: work with dict results
     typer.echo("Answer:\n" + (result.get("answer") or "No answer generated."))
     if result.get("citations"):
         typer.echo("\nCitations:")

@@ -101,7 +101,7 @@ class TestCLIBasicFunctionality:
             mock_load_docs.return_value = []
             mock_llm.return_value = MagicMock()
 
-            # Mock the graph and its invoke method
+            # Mock the graph and its invoke method to return dict (LangGraph best practice)
             mock_graph = MagicMock()
             mock_graph.invoke.return_value = {
                 "question": "How do I install?",
