@@ -3,18 +3,17 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import List
 
 from langchain_core.documents import Document
 
 DEFAULT_FAQ_DIR = Path(__file__).resolve().parents[2] / "data" / "faq"
 
 
-def _split_markdown_sections(markdown: str) -> List[str]:
+def _split_markdown_sections(markdown: str) -> list[str]:
     """Split a markdown document into sections based on level-2 headings."""
 
-    sections: List[str] = []
-    current: List[str] = []
+    sections: list[str] = []
+    current: list[str] = []
     for line in markdown.splitlines():
         if line.startswith("## ") and current:
             sections.append("\n".join(current).strip())
@@ -26,11 +25,11 @@ def _split_markdown_sections(markdown: str) -> List[str]:
     return [section for section in sections if section]
 
 
-def load_faq_documents(directory: Path | None = None) -> List[Document]:
+def load_faq_documents(directory: Path | None = None) -> list[Document]:
     """Load FAQ markdown files into LangChain documents."""
 
     directory = directory or DEFAULT_FAQ_DIR
-    documents: List[Document] = []
+    documents: list[Document] = []
     for path in sorted(directory.glob("*.md")):
         content = path.read_text(encoding="utf-8")
         sections = _split_markdown_sections(content) or [content]

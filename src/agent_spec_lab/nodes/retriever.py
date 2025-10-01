@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from difflib import SequenceMatcher
-from typing import Callable, List, Sequence
 
 from langchain_core.documents import Document
 
@@ -16,7 +16,9 @@ def _score_document(question: str, document: Document) -> float:
     return SequenceMatcher(None, question.lower(), document.page_content.lower()).ratio()
 
 
-def create_retrieve_node(documents: Sequence[Document], top_k: int = 3) -> Callable[[AgentState], AgentState]:
+def create_retrieve_node(
+    documents: Sequence[Document], top_k: int = 3
+) -> Callable[[AgentState], AgentState]:
     """Create a LangGraph node that ranks FAQ documents by similarity.
 
     Parameters
@@ -28,7 +30,7 @@ def create_retrieve_node(documents: Sequence[Document], top_k: int = 3) -> Calla
         The maximum number of context snippets to keep on the agent state.
     """
 
-    docs: List[Document] = list(documents)
+    docs: list[Document] = list(documents)
 
     def retrieve(state: AgentState) -> AgentState:
         ranked = sorted(

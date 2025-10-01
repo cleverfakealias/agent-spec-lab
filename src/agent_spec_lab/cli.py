@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Annotated
 
 import typer
 from dotenv import load_dotenv
@@ -19,9 +19,11 @@ app = typer.Typer(help="Interact with the agent-spec-lab FAQ assistant.")
 
 @app.command()
 def ask(
-    question: str = typer.Argument(..., help="Question to ask the FAQ assistant."),
-    faq_dir: Optional[Path] = typer.Option(None, help="Path to a directory of markdown FAQ files."),
-    model: Optional[str] = typer.Option(None, help="Override the OpenAI chat model name."),
+    question: Annotated[str, typer.Argument(help="Question to ask the FAQ assistant.")],
+    faq_dir: Annotated[
+        Path | None, typer.Option(help="Path to a directory of markdown FAQ files.")
+    ] = None,
+    model: Annotated[str | None, typer.Option(help="Override the OpenAI chat model name.")] = None,
 ) -> None:
     """Ask the LangGraph agent a question."""
 

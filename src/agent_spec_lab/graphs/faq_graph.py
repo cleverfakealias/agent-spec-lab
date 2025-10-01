@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from langchain_core.documents import Document
 from langchain_core.language_models.chat_models import BaseChatModel
