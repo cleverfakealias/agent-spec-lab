@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Annotated
 
-
 import typer
 from dotenv import load_dotenv
 
@@ -21,7 +20,9 @@ app = typer.Typer(help="Interact with the agent-spec-lab FAQ assistant.")
 @app.command()
 def ask(
     question: Annotated[str, typer.Argument(help="Question to ask the FAQ assistant.")],
-    faq_dir: Annotated[Path | None, typer.Option(help="Path to a directory of markdown FAQ files.")] = None,
+    faq_dir: Annotated[
+        Path | None, typer.Option(help="Path to a directory of markdown FAQ files.")
+    ] = None,
     model: Annotated[str | None, typer.Option(help="Override the OpenAI chat model name.")] = None,
 ) -> None:
     """Ask the LangGraph agent a question."""
@@ -38,7 +39,7 @@ def ask(
 
     typer.echo("Answer:\n" + (result.get("answer") or "No answer generated."))
     if result.get("citations"):
-        typer.echo("\nCitations:") 
+        typer.echo("\nCitations:")
         for citation in result.get("citations", []):
             typer.echo(f" - {citation}")
 
