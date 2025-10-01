@@ -78,7 +78,6 @@ python -m agent_spec_lab.cli "Your question here" --faq-dir data/faq
 ```bash
 ruff check .
 ruff format --check .
-black --check .
 ```
 
 ### Type checking
