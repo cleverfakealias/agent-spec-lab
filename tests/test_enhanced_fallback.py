@@ -105,9 +105,9 @@ def test_responsible_fallback():
 
         # Verify fallback metadata
         assert result.is_fallback_response is True, "Should be marked as fallback response"
-        assert (
-            result.response_strategy == "responsible_fallback"
-        ), "Should use responsible fallback strategy"
+        assert result.response_strategy == "responsible_fallback", (
+            "Should use responsible fallback strategy"
+        )
         assert result.answer is not None, "Should have an answer"
 
         print(f"   ✅ Is Fallback: {result.is_fallback_response}")

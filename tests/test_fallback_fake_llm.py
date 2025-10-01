@@ -141,9 +141,9 @@ def test_enhanced_graph_routing():
 
             # Basic validation
             assert "answer" in result, "Answer should be present"
-            assert isinstance(
-                result.get("confidence_score"), (int, type(None))
-            ), "Confidence score should be int or None"
+            assert isinstance(result.get("confidence_score"), (int, type(None))), (
+                "Confidence score should be int or None"
+            )
 
             print(f"   📝 Answer Preview: {str(result.get('answer', 'No answer'))[:80]}...")
 
