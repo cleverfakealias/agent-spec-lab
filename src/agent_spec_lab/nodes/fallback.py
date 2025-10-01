@@ -76,7 +76,7 @@ Is there a different way I can help you with agent-spec-lab?"""
         else:
             # General fallback for medium confidence scenarios
             answer = """I found some relevant information, but I'm not confident enough to
-provide a complete answer."
+provide a complete answer.
 
 To get accurate information about your question, I recommend:
 • Consulting the project's official documentation

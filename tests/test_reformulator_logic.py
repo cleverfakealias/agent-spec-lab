@@ -8,7 +8,10 @@ import sys
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from agent_spec_lab.nodes.reformulator import create_reformulator_node
 from agent_spec_lab.state import AgentState
