@@ -59,11 +59,17 @@ At minimum you need:
 ### 3. Run the CLI
 
 ```bash
-python -m agent_spec_lab.cli ask "How do I install the agent?"
+python -m agent_spec_lab.cli "How do I install the agent?"
 ```
 
 The command loads markdown documents from `data/faq/`, builds the LangGraph
 agent, and prints the generated answer along with citations.
+
+You can also specify a custom FAQ directory:
+
+```bash
+python -m agent_spec_lab.cli "Your question here" --faq-dir data/faq
+```
 
 ## Development Tasks
 
