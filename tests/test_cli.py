@@ -94,7 +94,7 @@ class TestCLIBasicFunctionality:
             patch("agent_spec_lab.cli.load_dotenv") as mock_dotenv,
             patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
             patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-            patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+            patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
             patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
         ):
             # Mock all dependencies
@@ -135,7 +135,7 @@ class TestCLIBasicFunctionality:
         with (
             patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
             patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-            patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+            patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
             patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
         ):
             # Mock all dependencies
@@ -167,7 +167,7 @@ class TestCLIBasicFunctionality:
         with (
             patch("agent_spec_lab.cli.load_faq_documents") as mock_loader,
             patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-            patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+            patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
             patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
         ):
             # Mock all dependencies
@@ -212,7 +212,7 @@ class TestCLIErrorHandling:
             with (
                 patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
                 patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-                patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+                patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
                 patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
             ):
                 # Mock all dependencies - simulate empty FAQ directory
@@ -243,7 +243,7 @@ class TestCLIErrorHandling:
         with (
             patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
             patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-            patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+            patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
             patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
         ):
             # Mock the load_faq_documents to return empty list for nonexistent directory
@@ -277,7 +277,7 @@ class TestCLIIntegration:
         with (
             patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
             patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-            patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+            patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
             patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
         ):
             # Simulate loading real FAQ files (but don't actually do it)
@@ -328,7 +328,7 @@ class TestCLIEnvironmentHandling:
             patch("agent_spec_lab.cli.load_dotenv") as mock_load_dotenv,
             patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
             patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-            patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+            patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
             patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
         ):
             # Mock all dependencies
@@ -374,7 +374,7 @@ class TestCLIIsolation:
                 patch("agent_spec_lab.cli.load_dotenv") as mock_dotenv,
                 patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
                 patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-                patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+                patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
                 patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
             ):
                 # Mock all dependencies
@@ -423,7 +423,7 @@ class TestCLIIdempotency:
         with (
             patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
             patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-            patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+            patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
             patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
         ):
             # Configure deterministic mock responses
@@ -467,7 +467,7 @@ class TestCLIIdempotency:
             with (
                 patch("agent_spec_lab.cli.load_faq_documents") as mock_load_docs,
                 patch("agent_spec_lab.cli.get_openai_llm") as mock_llm,
-                patch("agent_spec_lab.cli.build_faq_graph") as mock_build_graph,
+                patch("agent_spec_lab.cli.build_enhanced_faq_graph") as mock_build_graph,
                 patch("agent_spec_lab.cli.start_tracing") as mock_tracing,
             ):
                 mock_llm.return_value = MagicMock()
