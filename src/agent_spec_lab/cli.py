@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Annotated
 
@@ -11,6 +12,8 @@ from dotenv import load_dotenv
 from agent_spec_lab.graphs.enhanced_faq_graph import build_enhanced_faq_graph
 from agent_spec_lab.state import AgentState
 from agent_spec_lab.tools.faq_loader import load_faq_documents
+from agent_spec_lab.tools.langsmith_utils import check_langsmith_configuration, get_trace_url
+from agent_spec_lab.tools.logging import StructuredLogger, ensure_correlation_id
 from agent_spec_lab.tools.openai import get_openai_llm
 from agent_spec_lab.tools.tracing import start_tracing
 
@@ -67,30 +70,100 @@ def ask(
 ) -> None:
     """Ask the LangGraph agent a question."""
 
+    # Initialize CLI logger
+    cli_logger = StructuredLogger("cli")
+    start_time = time.time()
+
     load_dotenv()
+
+    # Create initial state with correlation ID
+    state = AgentState(question=question, start_time=start_time)
+    state = ensure_correlation_id(state)
+
+    # Check LangSmith configuration
+    langsmith_config = check_langsmith_configuration()
+
+    cli_logger.info(
+        "Starting FAQ query processing",
+        state=state,
+        faq_dir=str(faq_dir) if faq_dir else "default",
+        model=model or "default",
+        langsmith_config=langsmith_config,
+    )
+
+    # Show LangSmith status to user if tracing is enabled
+    if langsmith_config["tracing_enabled"]:
+        if langsmith_config["langsmith_accessible"]:
+            typer.echo(
+                f"🔍 LangSmith tracing enabled - Project: {langsmith_config['project_name']}"
+            )
+        else:
+            typer.echo("⚠️  LangSmith tracing enabled but not accessible - check your configuration")
+    else:
+        typer.echo("ℹ️  LangSmith tracing disabled - set LANGCHAIN_TRACING_V2=true to enable")
 
     # Pre-screen the question before any LLM calls
     is_safe, rejection_reason = pre_screen_question(question)
     if not is_safe:
+        cli_logger.warning(
+            "Question rejected by pre-screening",
+            state=state,
+            rejection_reason=rejection_reason,
+        )
         typer.echo(f"Answer:\n{rejection_reason}")
         typer.echo("\nFor questions about the agent-spec-lab framework, I'm here to help!")
         return
 
-    documents = load_faq_documents(faq_dir)
-    llm_kwargs = {"model": model} if model else {}
-    llm = get_openai_llm(**llm_kwargs)
-    graph = build_enhanced_faq_graph(documents, llm)  # Use enhanced graph with fallback
-    state = AgentState(question=question)
+    try:
+        documents = load_faq_documents(faq_dir)
+        cli_logger.info(
+            "Documents loaded successfully",
+            state=state,
+            document_count=len(documents),
+        )
 
-    with start_tracing(run_name="faq-query"):
-        result = graph.invoke(state)
+        llm_kwargs = {"model": model} if model else {}
+        llm = get_openai_llm(**llm_kwargs)
+        graph = build_enhanced_faq_graph(documents, llm)  # Use enhanced graph with fallback
 
-    # Following LangGraph best practices: work with dict results
-    typer.echo("Answer:\n" + (result.get("answer") or "No answer generated."))
-    if result.get("citations"):
-        typer.echo("\nCitations:")
-        for citation in result.get("citations", []):
-            typer.echo(f" - {citation}")
+        with start_tracing(run_name=f"faq-query-{state.correlation_id}"):
+            result = graph.invoke(state)
+
+        processing_time = time.time() - start_time
+
+        cli_logger.info(
+            "FAQ query completed successfully",
+            state=state,
+            processing_time_ms=processing_time * 1000,
+            has_answer=bool(result.get("answer")),
+            confidence_score=result.get("confidence_score"),
+            is_fallback=result.get("is_fallback_response", False),
+            citations_count=len(result.get("citations", [])),
+        )
+
+        # Show trace URL if available
+        trace_url = get_trace_url()
+        if trace_url and langsmith_config["tracing_enabled"]:
+            typer.echo(f"\n🔗 View trace: {trace_url}")
+
+        # Following LangGraph best practices: work with dict results
+        typer.echo("Answer:\n" + (result.get("answer") or "No answer generated."))
+        if result.get("citations"):
+            typer.echo("\nCitations:")
+            for citation in result.get("citations", []):
+                typer.echo(f" - {citation}")
+
+    except Exception as e:
+        processing_time = time.time() - start_time
+        cli_logger.error(
+            "FAQ query failed with error",
+            state=state,
+            error_type=type(e).__name__,
+            error_message=str(e),
+            processing_time_ms=processing_time * 1000,
+        )
+        typer.echo(f"Error processing question: {str(e)}")
+        raise
 
 
 def main() -> None:

@@ -8,6 +8,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
 from agent_spec_lab.state import AgentState
+from agent_spec_lab.tools.logging import StructuredLogger, performance_timer, trace_node
 
 _REFORMULATION_PROMPT = """
 You are helping to reformulate user questions to be clearer and more specific 
@@ -31,7 +32,9 @@ def create_reformulator_node(llm: BaseChatModel) -> Callable[[AgentState], Agent
     """Create a node that reformulates unclear questions."""
 
     prompt = ChatPromptTemplate.from_messages([("human", _REFORMULATION_PROMPT)])
+    logger = StructuredLogger("reformulator")
 
+    @trace_node("reformulator")
     def reformulate(state: AgentState) -> AgentState:
         # Only reformulate if the question is genuinely vague or uses unclear references
         unclear_indicators = ["this", "it", "that", "here", "there"]
@@ -66,9 +69,26 @@ def create_reformulator_node(llm: BaseChatModel) -> Callable[[AgentState], Agent
         )
 
         if (has_unclear_refs or is_very_vague) and not is_clear_question:
+            logger.info(
+                "Question requires reformulation",
+                state=state,
+                has_unclear_refs=has_unclear_refs,
+                is_very_vague=is_very_vague,
+            )
+
             messages = prompt.format_messages(question=state.question)
-            response = llm.invoke(messages)
+
+            with performance_timer("llm_reformulation", logger):
+                response = llm.invoke(messages)
+
             reformulated_question = getattr(response, "content", str(response)).strip()
+
+            logger.info(
+                "Question reformulated successfully",
+                state=state,
+                original_length=len(state.question),
+                reformulated_length=len(reformulated_question),
+            )
 
             processing_steps = list(state.processing_steps)
             processing_steps.append("reformulated")
@@ -81,6 +101,11 @@ def create_reformulator_node(llm: BaseChatModel) -> Callable[[AgentState], Agent
                 }
             )
         else:
+            logger.info(
+                "Question is clear, no reformulation needed",
+                state=state,
+                is_clear_question=is_clear_question,
+            )
             return state.model_copy(
                 update={"original_question": state.question, "was_reformulated": False}
             )

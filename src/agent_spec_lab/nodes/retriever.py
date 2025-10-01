@@ -8,6 +8,7 @@ from difflib import SequenceMatcher
 from langchain_core.documents import Document
 
 from agent_spec_lab.state import AgentState
+from agent_spec_lab.tools.logging import StructuredLogger, trace_node
 
 
 def _score_document(question: str, document: Document) -> float:
@@ -31,14 +32,35 @@ def create_retrieve_node(
     """
 
     docs: list[Document] = list(documents)
+    logger = StructuredLogger("retriever")
 
+    @trace_node("retriever")
     def retrieve(state: AgentState) -> AgentState:
+        logger.info(
+            "Starting document retrieval",
+            state=state,
+            total_documents=len(docs),
+            top_k=top_k,
+        )
+
         ranked = sorted(
             docs,
             key=lambda document: _score_document(state.question, document),
             reverse=True,
         )
         chosen = ranked[:top_k]
+
+        # Log retrieval results
+        scores = [_score_document(state.question, doc) for doc in chosen]
+        logger.info(
+            "Document retrieval completed",
+            state=state,
+            documents_retrieved=len(chosen),
+            top_score=max(scores) if scores else 0.0,
+            avg_score=sum(scores) / len(scores) if scores else 0.0,
+            citations=[str(doc.metadata.get("source", "unknown")) for doc in chosen],
+        )
+
         return state.model_copy(
             update={
                 "context": [doc.page_content for doc in chosen],
