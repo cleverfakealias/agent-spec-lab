@@ -6,7 +6,6 @@ from typing import Any
 
 from langchain_openai import ChatOpenAI
 
-
 DEFAULT_MODEL = "gpt-4o-mini"
 DEFAULT_TEMPERATURE = 0.0
 

@@ -13,6 +13,8 @@ def test_load_faq_documents(tmp_path: Path) -> None:
 
     documents = load_faq_documents(tmp_path)
 
-    assert len(documents) == 2
+    assert len(documents) == 3  # Title + 2 sections
     assert documents[0].metadata["source"] == "sample.md#section-0"
-    assert "Q1" in documents[0].page_content
+    assert documents[0].page_content == "# FAQ"  # First section is the title
+    assert documents[1].metadata["source"] == "sample.md#section-1"
+    assert "Q1" in documents[1].page_content

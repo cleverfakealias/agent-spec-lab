@@ -1,6 +1,6 @@
 # Agent Spec Lab
 
-Agent Spec Lab is a modular Python 3.11 project that demonstrates how to build a
+Agent Spec Lab is a modular Python 3.13 project that demonstrates how to build a
 LangGraph-powered agent capable of answering frequently asked questions (FAQ)
 from local markdown files. The project is designed for spec-driven development
 and multi-agent expansion.

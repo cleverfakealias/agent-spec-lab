@@ -2,21 +2,21 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Iterable, List, Sequence
 
 import pytest
+from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.documents import Document
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
-from langchain_core.callbacks import CallbackManagerForLLMRun
 
 from agent_spec_lab.tools.faq_loader import load_faq_documents
 
 
 @pytest.fixture(scope="session")
-def faq_documents() -> List[Document]:
+def faq_documents() -> list[Document]:
     """Load the sample FAQ documents."""
 
     return load_faq_documents(Path("data/faq"))
