@@ -40,6 +40,13 @@ class AgentState(BaseModel):
     # Conversation context
     conversation_history: str | None = None
 
+    # Enterprise tracking fields
+    correlation_id: str = Field(default_factory=lambda: __import__("uuid").uuid4().hex)
+    trace_id: str | None = None
+    span_id: str | None = None
+    start_time: float | None = None
+    error: str | None = None
+
     model_config = {
         "frozen": False,
         "arbitrary_types_allowed": True,

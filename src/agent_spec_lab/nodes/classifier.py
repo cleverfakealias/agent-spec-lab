@@ -9,6 +9,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.prompts import ChatPromptTemplate
 
 from agent_spec_lab.state import AgentState
+from agent_spec_lab.tools.logging import StructuredLogger, performance_timer, trace_node
 
 
 class QuestionType(str, Enum):
@@ -37,17 +38,41 @@ def create_classifier_node(llm: BaseChatModel) -> Callable[[AgentState], AgentSt
     """Create a node that classifies the user's question type."""
 
     prompt = ChatPromptTemplate.from_messages([("human", _CLASSIFICATION_PROMPT)])
+    logger = StructuredLogger("classifier")
 
+    @trace_node("classifier")
     def classify(state: AgentState) -> AgentState:
+        logger.info(
+            "Classifying question type",
+            state=state,
+            question_preview=state.question[:100] + "..."
+            if len(state.question) > 100
+            else state.question,
+        )
+
         messages = prompt.format_messages(question=state.question)
-        response = llm.invoke(messages)
+
+        with performance_timer("llm_classification", logger):
+            response = llm.invoke(messages)
+
         content = getattr(response, "content", str(response)).strip().lower()
 
         # Validate and default to general if invalid
         try:
             question_type = QuestionType(content)
         except ValueError:
+            logger.warning(
+                "Invalid classification result, defaulting to general",
+                state=state,
+                raw_classification=content,
+            )
             question_type = QuestionType.GENERAL
+
+        logger.info(
+            "Question classification completed",
+            state=state,
+            classified_type=question_type.value,
+        )
 
         return state.model_copy(update={"question_type": question_type.value})
 

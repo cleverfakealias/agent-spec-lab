@@ -5,19 +5,35 @@ from collections.abc import Callable
 from langchain_core.language_models.chat_models import BaseChatModel
 
 from agent_spec_lab.state import AgentState
+from agent_spec_lab.tools.logging import StructuredLogger, trace_node
 
 
 def create_fallback_node(llm: BaseChatModel) -> Callable[[AgentState], AgentState]:
     """Create a responsible fallback node that provides helpful guidance when unable to answer."""
 
+    logger = StructuredLogger("fallback")
+
+    @trace_node("fallback")
     def handle_fallback(state: AgentState) -> AgentState:
         # Analyze the question to provide contextually appropriate fallback
         question = state.question.lower() if state.question else ""
         confidence_score = state.confidence_score or 0
 
+        logger.info(
+            "Executing fallback handler",
+            state=state,
+            confidence_score=confidence_score,
+            question_length=len(question),
+        )
+
         # Generate different fallback responses based on the situation
         harmful_words = ["hack", "crack", "exploit", "attack", "malware"]
         if question and any(harmful_word in question for harmful_word in harmful_words):
+            logger.warning(
+                "Detected potentially harmful question",
+                state=state,
+                detected_words=[word for word in harmful_words if word in question],
+            )
             # Handle potentially harmful requests
             answer = """I can't provide assistance with activities that could be harmful
 or illegal. 
@@ -85,6 +101,20 @@ To get accurate information about your question, I recommend:
 
 Would you like me to help you find specific resources, or do you have a related 
 question I might be able to answer more confidently?"""
+
+        fallback_type = (
+            "harmful_content"
+            if any(word in question for word in harmful_words)
+            else "low_confidence"
+        )
+
+        logger.info(
+            "Fallback response generated",
+            state=state,
+            fallback_type=fallback_type,
+            answer_length=len(answer),
+            confidence_score=confidence_score,
+        )
 
         return state.model_copy(
             update={
